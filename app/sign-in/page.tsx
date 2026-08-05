@@ -45,13 +45,15 @@ export default function SignInPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background px-4">
-            <Card className="w-full max-w-md">
+        <div className="flex min-h-screen items-center justify-center bg-aurora px-4 py-10">
+            <Card className="w-full max-w-md rounded-2xl border-border/70 shadow-premium">
                 <CardHeader className="text-center">
-                    <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                        <Sparkles className="size-6" />
+                    <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-premium">
+                        <Sparkles className="size-7" />
                     </div>
-                    <CardTitle className="text-2xl font-bold">Masuk</CardTitle>
+                    <CardTitle className="text-2xl font-bold tracking-tight">
+                        Masuk
+                    </CardTitle>
                     <CardDescription>
                         Masukkan email dan kata sandi untuk mengakses akun Anda
                     </CardDescription>
