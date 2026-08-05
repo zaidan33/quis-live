@@ -53,6 +53,8 @@ import {
 import { startGameSessionAction } from "@/lib/actions/game";
 import type { SaveQuizInput } from "@/lib/validators/quiz";
 import { ImageUpload } from "./image-upload";
+import { MarkdownImport } from "./markdown-import";
+import type { ImportedQuestion } from "@/lib/md-import";
 
 const TIME_OPTIONS = ALLOWED_TIME_LIMITS_SEC;
 const POINT_OPTIONS = [
@@ -278,6 +280,30 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
         setSelectedId(q.id);
     }
 
+    /** Mengonversi hasil impor MD ke tree soal dan menambahkannya. */
+    function importQuestions(imported: ImportedQuestion[]) {
+        if (imported.length === 0) return;
+        const base = treeRef.current.questions.length;
+        const added = imported.map((iq, i) => ({
+            id: uid(),
+            order: base + i,
+            type: iq.type,
+            text: iq.text,
+            imageUrl: null,
+            timeLimitSec: iq.timeLimitSec,
+            basePoints: iq.basePoints,
+            options: iq.options.map((o, j) => ({
+                id: uid(),
+                order: j,
+                text: o.text,
+                isCorrect: o.isCorrect,
+            })),
+        }));
+        commit({ ...treeRef.current, questions: [...treeRef.current.questions, ...added] });
+        setSelectedId(added[0].id);
+        toast.success(`${added.length} soal diimpor dari Markdown`);
+    }
+
     function deleteQuestion(qid: string) {
         const remaining = treeRef.current.questions
             .filter((q) => q.id !== qid)
@@ -439,6 +465,7 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
                         <Plus className="mr-2 size-4" />
                         Tambah Soal
                     </Button>
+                    <MarkdownImport onImport={importQuestions} />
                 </div>
 
                 {/* Question form */}
