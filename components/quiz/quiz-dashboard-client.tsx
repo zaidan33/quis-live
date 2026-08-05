@@ -222,14 +222,19 @@ export function QuizDashboardClient({
         }
     }
 
-    /** Mulai sesi live langsung dari dashboard (tanpa buka editor). */
+    /** Mulai sesi live langsung dari dashboard — buka presenter di popup layar penuh. */
     async function handleStart(quiz: QuizListItem) {
         if (!quiz.ready) return;
         setStartingId(quiz.id);
         try {
             const res = await startGameSessionAction(quiz.id);
             if ("sessionId" in res) {
-                router.push(`/host/${res.sessionId}`);
+                const win = window.open(
+                    `/present/${res.sessionId}`,
+                    "_blank",
+                    "popup=yes,width=1280,height=800",
+                );
+                if (win) win.focus();
             } else {
                 toast.error(res.error);
             }

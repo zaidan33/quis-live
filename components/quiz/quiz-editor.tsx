@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
     DndContext,
     PointerSensor,
@@ -109,7 +108,6 @@ function buildSaveInput(tree: QuizTree): SaveQuizInput {
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
-    const router = useRouter();
     const [tree, setTree] = React.useState<QuizTree>(initialQuiz);
     const [selectedId, setSelectedId] = React.useState<string>(
         initialQuiz.questions[0]?.id ?? "",
@@ -340,7 +338,14 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
         try {
             const res = await startGameSessionAction(tree.id);
             if ("sessionId" in res) {
-                router.push(`/host/${res.sessionId}`);
+                // Presenter dibuka sebagai popup layar penuh (route /present,
+                // tanpa sidebar dashboard).
+                const win = window.open(
+                    `/present/${res.sessionId}`,
+                    "_blank",
+                    "popup=yes,width=1280,height=800",
+                );
+                if (win) win.focus();
             } else {
                 toast.error(res.error);
             }
