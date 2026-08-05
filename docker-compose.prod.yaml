@@ -1,0 +1,98 @@
+# Stack produksi Quis (PRD asumsi 3: self-hosted VPS dengan Docker Compose).
+# Nginx terminasi SSL + reverse proxy: / → app:3000, /socket.io/ → realtime:4000
+# (dengan WebSocket upgrade). Jalankan: docker compose -f docker-compose.prod.yaml up -d --build
+# Lihat documentation/DEPLOYMENT.md untuk persiapan .env.prod dan sertifikat.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: quis-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-quis}
+      POSTGRES_USER: ${POSTGRES_USER:-quis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.prod}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-quis} -d ${POSTGRES_DB:-quis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - quis
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Di-inline ke bundle klien saat build (NEXT_PUBLIC_*).
+        NEXT_PUBLIC_REALTIME_URL: ${PUBLIC_URL:?set PUBLIC_URL in .env.prod}
+        NEXT_PUBLIC_BETTER_AUTH_URL: ${PUBLIC_URL}
+    container_name: quis-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-quis}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-quis}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env.prod}
+      - BETTER_AUTH_URL=${PUBLIC_URL}
+      - GAME_TOKEN_SECRET=${GAME_TOKEN_SECRET:?set GAME_TOKEN_SECRET in .env.prod}
+      - UPLOAD_DIR=./public/uploads
+      - MAX_UPLOAD_MB=${MAX_UPLOAD_MB:-5}
+    volumes:
+      # Gambar upload tersimpan di volume bernama (bukan hilang saat redeploy).
+      - app_uploads:/app/public/uploads
+    expose:
+      - "3000"
+    networks:
+      - quis
+
+  realtime:
+    build:
+      context: .
+      dockerfile: realtime/Dockerfile
+    container_name: quis-realtime
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-quis}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-quis}
+      - GAME_TOKEN_SECRET=${GAME_TOKEN_SECRET:?set GAME_TOKEN_SECRET in .env.prod}
+      - REALTIME_PORT=4000
+      # CORS: hanya menerima koneksi dari origin publik app.
+      - NEXT_PUBLIC_REALTIME_URL=${PUBLIC_URL}
+      - LOG_LEVEL=info
+    expose:
+      - "4000"
+    networks:
+      - quis
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: quis-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+      - realtime
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/quis.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - quis
+
+volumes:
+  postgres_data:
+  app_uploads:
+
+networks:
+  quis:
+    driver: bridge

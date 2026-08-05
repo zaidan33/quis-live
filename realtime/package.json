@@ -1,0 +1,28 @@
+{
+  "name": "quis-realtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Layanan Socket.IO otoritatif untuk Quis (state game di memori).",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --external:socket.io --external:socket.io-client --external:pg-native --outfile=dist/index.mjs",
+    "start": "node dist/index.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "esbuild": "^0.28.1",
+    "socket.io-client": "^4.8.3",
+    "tsx": "^4.23.7",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "comments": {
+    "deps": "drizzle-orm, pg, jose, dotenv di-resolve dari root node_modules (satu instance bersama schema app) untuk menghindari duplikasi tipe drizzle. Prod: esbuild membundel semuanya kecuali socket.io."
+  }
+}
