@@ -279,7 +279,7 @@ export function QuizDashboardClient({
 
     return (
         <div className="@container/main flex flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
                 <h2 className="text-2xl font-semibold tracking-tight">
                     Kuis Saya
                 </h2>
@@ -308,7 +308,7 @@ export function QuizDashboardClient({
                 </Button>
             </div>
 
-            <div className="rounded-md border">
+            <div className="overflow-hidden rounded-xl border shadow-premium">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((hg) => (

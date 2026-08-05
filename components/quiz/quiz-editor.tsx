@@ -383,7 +383,7 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
             </div>
 
             {/* Quiz meta */}
-            <div className="rounded-lg border p-4 space-y-3">
+            <div className="space-y-3 rounded-xl border bg-card p-5 shadow-premium">
                 <div className="grid gap-3 md:grid-cols-[1fr_auto]">
                     <div className="space-y-2">
                         <Label htmlFor="title">Judul Kuis</Label>
@@ -420,7 +420,7 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
 
             {/* Readiness */}
             {!readiness.ready ? (
-                <div className="rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-200">
+                <div className="rounded-xl border border-amber-300/70 bg-amber-50 p-4 text-sm text-amber-900 shadow-premium dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-200">
                     <p className="font-medium">Belum siap dimulai:</p>
                     <ul className="ml-4 list-disc">
                         {readiness.issues.map((iss, i) => (
@@ -494,7 +494,7 @@ export function QuizEditor({ initialQuiz }: { initialQuiz: QuizTree }) {
                             onFlush={flushSave}
                         />
                     ) : (
-                        <div className="flex h-64 items-center justify-center rounded-lg border text-muted-foreground">
+                        <div className="flex h-64 items-center justify-center rounded-xl border text-muted-foreground">
                             Belum ada soal. Klik “Tambah Soal”.
                         </div>
                     )}
@@ -554,10 +554,10 @@ function SortableQuestion({
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group flex items-center gap-2 rounded-lg border p-2",
+                "group flex items-center gap-2 rounded-xl border p-2.5 transition-colors",
                 selected
-                    ? "border-primary ring-1 ring-primary"
-                    : "hover:border-foreground/20",
+                    ? "border-primary bg-accent ring-1 ring-primary"
+                    : "hover:border-foreground/20 hover:bg-accent/50",
             )}
         >
             <button
@@ -631,7 +631,7 @@ function QuestionForm({
     onFlush: () => void;
 }) {
     return (
-        <div className="space-y-4 rounded-lg border p-4">
+        <div className="space-y-4 rounded-xl border bg-card p-5 shadow-premium">
             <div className="space-y-2">
                 <Label htmlFor="qtext">Teks Soal</Label>
                 <Textarea
