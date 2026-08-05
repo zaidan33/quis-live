@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { TimerBar } from "@/components/game/timer-bar";
 import { ShapeIcon } from "@/components/game/shape-icon";
 import { shapeOf } from "@/lib/game/shapes";
@@ -236,9 +237,11 @@ export default function PlayPage() {
     if (kicked) {
         return (
             <Center>
-                <Card className="w-full max-w-sm">
+                <Card className="w-full max-w-sm rounded-2xl shadow-premium">
                     <CardContent className="space-y-3 p-6 text-center">
-                        <p className="text-lg font-semibold">Kamu dikeluarkan</p>
+                        <p className="text-lg font-bold tracking-tight">
+                            Kamu dikeluarkan
+                        </p>
                         <p className="text-sm text-muted-foreground">
                             Host mengeluarkan kamu dari sesi ini.
                         </p>
@@ -257,9 +260,11 @@ export default function PlayPage() {
     if (conn.status === "error") {
         return (
             <Center>
-                <Card className="w-full max-w-sm">
+                <Card className="w-full max-w-sm rounded-2xl shadow-premium">
                     <CardContent className="space-y-3 p-6 text-center">
-                        <p className="text-destructive">{conn.message}</p>
+                        <p className="font-medium text-destructive">
+                            {conn.message}
+                        </p>
                         <Button
                             variant="outline"
                             className="w-full"
@@ -286,11 +291,13 @@ export default function PlayPage() {
     if (phase === "lobby") {
         return (
             <Center>
-                <Card className="w-full max-w-sm">
+                <Card className="w-full max-w-sm rounded-2xl shadow-premium">
                     <CardContent className="space-y-4 p-8 text-center">
                         <Loader2 className="mx-auto size-6 animate-spin text-primary" />
                         <div>
-                            <p className="text-xl font-semibold">{nickname}</p>
+                            <p className="text-xl font-bold tracking-tight">
+                                {nickname}
+                            </p>
                             <p className="text-sm text-muted-foreground">
                                 Kamu sudah masuk. Tunggu host memulai permainan.
                             </p>
@@ -306,14 +313,15 @@ export default function PlayPage() {
         return (
             <Center>
                 <div className="text-center">
-                    <p className="mb-2 text-lg text-muted-foreground">
+                    <p className="mb-3 text-lg text-muted-foreground">
                         {countdown
                             ? `Soal ${countdown.index + 1} dari ${countdown.total}`
                             : "Bersiap…"}
                     </p>
                     <div
                         key={countdown?.n ?? 0}
-                        className="animate-in fade-in zoom-in text-[9rem] font-bold leading-none text-primary"
+                        className="animate-in fade-in zoom-in text-[9rem] font-black leading-none text-primary md:text-[12rem]"
+                        style={{ textShadow: "0 12px 40px -8px var(--primary)" }}
                     >
                         {countdown?.n ?? "Mulai!"}
                     </div>
@@ -324,15 +332,15 @@ export default function PlayPage() {
 
     if (phase === "question" && question) {
         return (
-            <div className="flex min-h-screen flex-col bg-background p-3">
+            <div className="dark flex min-h-screen flex-col bg-stage p-3">
                 <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
-                    <div className="mb-3 flex items-center justify-between text-sm text-muted-foreground">
-                        <span>
+                    <div className="mb-3 flex items-center justify-between text-sm text-white/70">
+                        <span className="tabular-nums">
                             Soal {question.index + 1}/{question.total}
                         </span>
-                        <span className="font-medium text-foreground">{nickname}</span>
+                        <span className="font-medium text-white">{nickname}</span>
                     </div>
-                    <div className="mb-3">
+                    <div className="mb-4">
                         <TimerBar
                             serverStartAt={question.serverStartAt}
                             timeLimitMs={question.timeLimitMs}
@@ -340,7 +348,7 @@ export default function PlayPage() {
                         />
                     </div>
                     {question.question.text && (
-                        <h2 className="mb-3 text-center text-2xl font-semibold">
+                        <h2 className="mb-5 text-center text-2xl font-bold leading-snug text-white md:text-3xl">
                             {question.question.text}
                         </h2>
                     )}
@@ -355,18 +363,19 @@ export default function PlayPage() {
                                     disabled={locked}
                                     onClick={() => answer(o.id)}
                                     aria-label={`${s.label}${o.text ? ` — ${o.text}` : ""}`}
-                                    className="relative flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl p-3 text-white shadow-md transition active:scale-[0.98] disabled:cursor-default"
+                                    className={cn(
+                                        "relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-3xl p-4 text-white shadow-premium-lg transition-all duration-150 active:scale-95 disabled:cursor-default",
+                                        selected && locked && "scale-[1.03] ring-4 ring-white",
+                                    )}
                                     style={{
-                                        backgroundColor: s.fill,
-                                        opacity: locked && !selected ? 0.45 : 1,
-                                        outline:
-                                            selected && locked
-                                                ? `4px solid white`
-                                                : "none",
-                                        outlineOffset: "-4px",
+                                        backgroundImage: `linear-gradient(135deg, ${s.fill}, ${s.fillStrong})`,
+                                        opacity: locked && !selected ? 0.4 : 1,
                                     }}
                                 >
-                                    <ShapeIcon name={s.name} className="size-14 shrink-0" />
+                                    <ShapeIcon
+                                        name={s.name}
+                                        className="size-14 shrink-0 drop-shadow"
+                                    />
                                     {o.text && (
                                         <span className="w-full break-words text-center text-xl font-bold leading-snug">
                                             {o.text}
@@ -377,7 +386,7 @@ export default function PlayPage() {
                         })}
                     </div>
                     {locked && (
-                        <p className="mt-3 text-center text-sm text-muted-foreground">
+                        <p className="mt-4 text-center text-sm text-white/70">
                             Jawaban terkunci. Menunggu soal selesai…
                         </p>
                     )}
@@ -387,67 +396,81 @@ export default function PlayPage() {
     }
 
     if (phase === "feedback") {
+        const correct = result?.correct;
         return (
-            <Center>
-                <Card className="w-full max-w-sm">
-                    <CardContent className="space-y-4 p-6 text-center">
-                        {result?.correct ? (
+            <div
+                className={cn(
+                    "flex min-h-screen items-center justify-center p-4",
+                    correct
+                        ? "bg-gradient-to-b from-emerald-500 to-emerald-700"
+                        : "bg-gradient-to-b from-rose-500 to-rose-700",
+                )}
+            >
+                <Card className="w-full max-w-sm rounded-3xl border-0 shadow-premium-lg">
+                    <CardContent className="space-y-5 p-8 text-center">
+                        {correct ? (
                             <>
-                                <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-green-600 text-white">
-                                    <Check className="size-9" />
+                                <div className="mx-auto flex size-20 animate-pop items-center justify-center rounded-full bg-white text-emerald-600 shadow-lg">
+                                    <Check className="size-11" strokeWidth={3} />
                                 </div>
-                                <p className="text-2xl font-bold">Benar!</p>
+                                <p className="text-3xl font-extrabold tracking-tight text-white">
+                                    Benar!
+                                </p>
                             </>
                         ) : (
                             <>
-                                <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-destructive text-white">
-                                    <X className="size-9" />
+                                <div className="mx-auto flex size-20 animate-shake items-center justify-center rounded-full bg-white text-rose-600 shadow-lg">
+                                    <X className="size-11" strokeWidth={3} />
                                 </div>
-                                <p className="text-2xl font-bold">
+                                <p className="text-3xl font-extrabold tracking-tight text-white">
                                     {selectedId ? "Belum tepat" : "Waktu habis"}
                                 </p>
                             </>
                         )}
-                        <div className="rounded-lg bg-muted p-3">
-                            <p className="text-3xl font-bold tabular-nums">
+                        <div className="animate-count-pop rounded-2xl bg-white/15 p-4 backdrop-blur">
+                            <p className="text-4xl font-black tabular-nums text-white">
                                 +{result?.pointsAwarded ?? 0}
                             </p>
-                            <p className="text-xs text-muted-foreground">poin</p>
+                            <p className="text-xs font-medium uppercase tracking-wide text-white/80">
+                                poin
+                            </p>
                         </div>
                         {result && result.streakBonus > 0 && (
-                            <p className="text-sm text-muted-foreground">
-                                Bonus beruntun +{result.streakBonus}
+                            <p className="text-sm font-medium text-white/90">
+                                🔥 Bonus beruntun +{result.streakBonus}
                             </p>
                         )}
                         {typeof result?.rank === "number" && result.rank > 0 && (
-                            <p className="flex items-center justify-center gap-1 text-sm">
-                                <Trophy className="size-4 text-yellow-500" />
+                            <p className="flex items-center justify-center gap-1 text-sm font-semibold text-white/90">
+                                <Trophy className="size-4 text-amber-200" />
                                 Peringkat #{result.rank}
                             </p>
                         )}
-                        <p className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                        <p className="flex items-center justify-center gap-1 text-sm text-white/70">
                             <Clock className="size-4" /> Menunggu soal berikutnya…
                         </p>
                     </CardContent>
                 </Card>
-            </Center>
+            </div>
         );
     }
 
     if (phase === "leaderboard") {
         return (
             <Center>
-                <Card className="w-full max-w-sm">
+                <Card className="w-full max-w-sm rounded-2xl shadow-premium">
                     <CardContent className="space-y-3 p-8 text-center">
-                        <Trophy className="mx-auto size-10 text-yellow-500" />
-                        <p className="text-sm text-muted-foreground">
+                        <Trophy className="mx-auto size-12 text-amber-400" />
+                        <p className="text-sm font-medium text-muted-foreground">
                             Papan skor sementara
                         </p>
-                        <p className="text-5xl font-bold tabular-nums">
+                        <p className="text-6xl font-black tabular-nums text-gradient-brand">
                             #{myRank ?? "–"}
                         </p>
                         {myScore !== null && (
-                            <p className="text-muted-foreground">{myScore} poin</p>
+                            <p className="font-medium text-muted-foreground">
+                                {myScore} poin
+                            </p>
                         )}
                         <p className="text-sm text-muted-foreground">
                             Menunggu soal berikutnya…
@@ -461,26 +484,37 @@ export default function PlayPage() {
     // finished
     return (
         <Center>
-            <Card className="w-full max-w-sm">
-                <CardContent className="space-y-4 p-8 text-center">
-                    <p className="text-lg font-semibold">Permainan Selesai</p>
-                    <p className="text-sm text-muted-foreground">Terima kasih sudah bermain, {nickname}!</p>
-                    <div className="rounded-lg bg-muted p-4">
-                        <p className="text-sm text-muted-foreground">Peringkat akhir</p>
-                        <p className="text-4xl font-bold tabular-nums">
+            <Card className="w-full max-w-sm rounded-2xl shadow-premium">
+                <CardContent className="space-y-5 p-8 text-center">
+                    <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-premium">
+                        <Trophy className="size-7 text-amber-200" />
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-lg font-bold tracking-tight">
+                            Permainan Selesai
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            Terima kasih sudah bermain, {nickname}!
+                        </p>
+                    </div>
+                    <div className="rounded-2xl bg-brand-gradient-soft p-4">
+                        <p className="text-sm font-medium text-muted-foreground">
+                            Peringkat akhir
+                        </p>
+                        <p className="text-5xl font-black tabular-nums text-gradient-brand">
                             #{finalSummary?.rank ?? myRank ?? "–"}
                         </p>
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div className="rounded-lg border p-3">
+                        <div className="rounded-xl border bg-card p-3">
                             <p className="text-muted-foreground">Skor</p>
-                            <p className="text-xl font-bold">
+                            <p className="text-xl font-bold tabular-nums">
                                 {finalSummary?.score ?? myScore ?? 0}
                             </p>
                         </div>
-                        <div className="rounded-lg border p-3">
+                        <div className="rounded-xl border bg-card p-3">
                             <p className="text-muted-foreground">Benar</p>
-                            <p className="text-xl font-bold">
+                            <p className="text-xl font-bold tabular-nums">
                                 {finalSummary?.correctCount ?? 0}/
                                 {finalSummary?.totalQuestions ?? "?"}
                             </p>
@@ -501,7 +535,7 @@ export default function PlayPage() {
 
 function Center({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <div className="flex min-h-screen items-center justify-center bg-aurora p-4">
             {children}
         </div>
     );
