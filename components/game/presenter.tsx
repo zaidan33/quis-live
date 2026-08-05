@@ -375,7 +375,7 @@ export function Presenter({
                 <div className="flex flex-1 flex-col gap-6">
                     <Card>
                         <CardContent className="space-y-4 p-6">
-                            <h3 className="text-center text-2xl font-semibold md:text-3xl">
+                            <h3 className="text-center text-3xl font-semibold md:text-4xl">
                                 {question.question.text}
                             </h3>
                             <TimerBar
@@ -389,11 +389,11 @@ export function Presenter({
                                     return (
                                         <div
                                             key={o.id}
-                                            className="flex items-center gap-2 rounded-lg p-3 text-white"
+                                            className="flex min-h-24 items-center justify-center gap-2 rounded-lg p-4 text-white"
                                             style={{ backgroundColor: s.fill }}
                                         >
-                                            <ShapeIcon name={s.name} className="size-6 shrink-0" />
-                                            <span className="min-w-0 break-words text-sm font-medium leading-snug">
+                                            <ShapeIcon name={s.name} className="size-8 shrink-0" />
+                                            <span className="min-w-0 break-words text-center text-lg font-semibold leading-snug md:text-xl">
                                                 {o.text}
                                             </span>
                                         </div>

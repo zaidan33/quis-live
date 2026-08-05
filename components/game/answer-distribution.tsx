@@ -78,8 +78,8 @@ export function AnswerDistribution({
                                 )}
                             </span>
                             <div className="min-w-0">
-                                <p className="break-words font-medium leading-snug">{e.text || s.label}</p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="break-words text-base font-semibold leading-snug">{e.text || s.label}</p>
+                                <p className="text-sm text-muted-foreground">
                                     {e.count} ({pct}%)
                                 </p>
                             </div>
