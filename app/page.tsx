@@ -48,7 +48,7 @@ const features = [
 
 export default function Home() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-violet-100 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950">
             <div className="text-center py-12 sm:py-20 relative px-4">
                 <div className="absolute top-4 right-4 sm:top-6 sm:right-6">
                     <div className="flex items-center gap-2 sm:gap-3">
@@ -57,15 +57,15 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center gap-3 mb-4">
-                    <div className="flex size-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                <div className="flex flex-col items-center justify-center gap-4 mb-6">
+                    <div className="flex size-16 items-center justify-center rounded-2xl bg-brand-gradient text-white shadow-premium">
                         <Sparkles className="size-8" />
                     </div>
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight font-parkinsans">
+                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight font-parkinsans text-gradient-brand">
                         Quis
                     </h1>
                 </div>
-                <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4 mb-8">
+                <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto px-4 mb-10">
                     Platform kuis interaktif real-time. Buat kuis, mainkan
                     live, dan lihat hasilnya — tanpa biaya per peserta.
                 </p>
@@ -74,13 +74,15 @@ export default function Home() {
             </div>
 
             <main className="container mx-auto px-4 sm:px-6 pb-16 max-w-5xl">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {features.map((f) => (
                         <div
                             key={f.title}
-                            className="rounded-xl border bg-card p-5 text-left"
+                            className="rounded-2xl border bg-card p-6 text-left shadow-premium transition-all duration-200 hover:-translate-y-1 hover:shadow-premium-lg"
                         >
-                            <f.icon className="size-6 text-primary mb-3" />
+                            <div className="mb-4 flex size-11 items-center justify-center rounded-xl bg-brand-gradient-soft text-primary">
+                                <f.icon className="size-5" />
+                            </div>
                             <h3 className="font-semibold mb-1">{f.title}</h3>
                             <p className="text-sm text-muted-foreground">
                                 {f.desc}
