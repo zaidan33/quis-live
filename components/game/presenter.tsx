@@ -383,17 +383,17 @@ export function Presenter({
                                 timeLimitMs={question.timeLimitMs}
                                 offset={offset}
                             />
-                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                                 {question.question.options.map((o) => {
                                     const s = shapeOf(o.order);
                                     return (
                                         <div
                                             key={o.id}
-                                            className="flex items-center gap-2 rounded-lg p-2 text-white"
+                                            className="flex items-center gap-2 rounded-lg p-3 text-white"
                                             style={{ backgroundColor: s.fill }}
                                         >
                                             <ShapeIcon name={s.name} className="size-6 shrink-0" />
-                                            <span className="truncate text-sm font-medium">
+                                            <span className="min-w-0 break-words text-sm font-medium leading-snug">
                                                 {o.text}
                                             </span>
                                         </div>

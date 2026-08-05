@@ -53,7 +53,7 @@ export function AnswerDistribution({
                 </BarChart>
             </ChartContainer>
 
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
                 {entries.map((e) => {
                     const s = shapeOf(e.order);
                     const pct = total > 0 ? Math.round((e.count / total) * 100) : 0;
@@ -78,7 +78,7 @@ export function AnswerDistribution({
                                 )}
                             </span>
                             <div className="min-w-0">
-                                <p className="truncate font-medium">{e.text || s.label}</p>
+                                <p className="break-words font-medium leading-snug">{e.text || s.label}</p>
                                 <p className="text-xs text-muted-foreground">
                                     {e.count} ({pct}%)
                                 </p>
