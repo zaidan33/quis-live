@@ -53,14 +53,14 @@ export function AnswerDistribution({
                 </BarChart>
             </ChartContainer>
 
-            <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
                 {entries.map((e) => {
                     const s = shapeOf(e.order);
                     const pct = total > 0 ? Math.round((e.count / total) * 100) : 0;
                     return (
                         <div
                             key={e.order}
-                            className="flex items-center gap-2 rounded-lg border p-2 text-sm"
+                            className="flex items-center gap-2.5 rounded-xl border bg-card p-2.5 text-sm shadow-sm"
                             style={
                                 showCorrect && e.correct
                                     ? { borderColor: s.fill, boxShadow: `0 0 0 1px ${s.fill}` }
@@ -68,7 +68,7 @@ export function AnswerDistribution({
                             }
                         >
                             <span
-                                className="flex size-7 shrink-0 items-center justify-center rounded text-white"
+                                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-white"
                                 style={{ backgroundColor: s.fill }}
                             >
                                 {showCorrect && e.correct ? (
@@ -78,7 +78,9 @@ export function AnswerDistribution({
                                 )}
                             </span>
                             <div className="min-w-0">
-                                <p className="break-words text-base font-semibold leading-snug">{e.text || s.label}</p>
+                                <p className="break-words text-base font-semibold leading-snug">
+                                    {e.text || s.label}
+                                </p>
                                 <p className="text-sm text-muted-foreground">
                                     {e.count} ({pct}%)
                                 </p>

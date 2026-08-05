@@ -56,10 +56,10 @@ export function FullscreenPresenter({
 
     return (
         <div className="flex h-screen flex-col bg-background">
-            <div className="flex items-center justify-between border-b px-4 py-2">
+            <div className="flex items-center justify-between border-b bg-card/60 px-4 py-2.5 backdrop-blur">
                 <div className="flex items-center gap-3">
-                    <span className="font-semibold">{quizTitle}</span>
-                    <span className="rounded-md bg-muted px-2 py-0.5 text-sm tabular-nums">
+                    <span className="font-semibold tracking-tight">{quizTitle}</span>
+                    <span className="rounded-lg bg-brand-gradient-soft px-2 py-0.5 text-sm font-semibold tabular-nums text-primary">
                         PIN {pin}
                     </span>
                 </div>

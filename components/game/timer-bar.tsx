@@ -38,20 +38,42 @@ export function TimerBar({
     }, [serverStartAt, timeLimitMs, offset]);
 
     const pct = timeLimitMs > 0 ? (remaining / timeLimitMs) * 100 : 0;
-    const danger = remaining < timeLimitMs * 0.25;
+    const frac = timeLimitMs > 0 ? remaining / timeLimitMs : 0;
+    const tone = frac > 0.5 ? "safe" : frac > 0.25 ? "warn" : "danger";
+
+    const barClass =
+        tone === "safe"
+            ? "bg-primary"
+            : tone === "warn"
+              ? "bg-amber-500"
+              : "bg-destructive";
+    const glowClass =
+        tone === "safe"
+            ? "shadow-[0_0_18px_-2px_var(--primary)]"
+            : tone === "warn"
+              ? "shadow-[0_0_18px_-2px_oklch(0.76_0.16_70)]"
+              : "shadow-[0_0_22px_-2px_var(--destructive)]";
 
     return (
         <div className="w-full">
-            <div className="mb-1 flex items-center justify-between text-sm tabular-nums text-muted-foreground">
+            <div className="mb-1.5 flex items-center justify-between text-sm tabular-nums text-muted-foreground">
                 <span>Sisa waktu</span>
-                <span className={danger ? "font-semibold text-destructive" : ""}>
+                <span
+                    className={
+                        tone === "danger"
+                            ? "font-bold text-destructive"
+                            : tone === "warn"
+                              ? "font-semibold text-amber-600 dark:text-amber-400"
+                              : "font-medium text-foreground"
+                    }
+                >
                     {Math.max(0, Math.ceil(remaining / 1000))} detik
                 </span>
             </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
+            <div className="h-4 w-full overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-black/5 dark:ring-white/10">
                 <div
-                    className={`h-full ${
-                        danger ? "bg-destructive" : "bg-primary"
+                    className={`h-full rounded-full transition-[width] duration-100 ease-linear ${barClass} ${glowClass} ${
+                        tone === "danger" ? "animate-pulse" : ""
                     }`}
                     style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
                 />

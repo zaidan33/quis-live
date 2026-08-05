@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { createGameSocket } from "@/lib/socket";
 import { syncClock } from "@/lib/clock-sync";
+import { cn } from "@/lib/utils";
 import { TimerBar } from "@/components/game/timer-bar";
 import { AnswerDistribution } from "@/components/game/answer-distribution";
 import { ShapeIcon } from "@/components/game/shape-icon";
@@ -307,12 +308,14 @@ export function Presenter({
     }
 
     return (
-        <div className="@container/main mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 md:p-8">
+        <div className="@container/main mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 p-4 md:p-8">
             {/* Header */}
             <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                    <p className="text-sm text-muted-foreground">{quizTitle}</p>
-                    <h2 className="text-2xl font-semibold tracking-tight">
+                <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">
+                        {quizTitle}
+                    </p>
+                    <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
                         {titleFor(phase)}
                     </h2>
                     {(phase === "QUESTION_ACTIVE" ||
@@ -358,12 +361,13 @@ export function Presenter({
             {phase === "COUNTDOWN" && countdown && (
                 <Centered>
                     <div className="text-center">
-                        <p className="mb-2 text-lg text-muted-foreground">
+                        <p className="mb-4 text-xl font-medium text-muted-foreground">
                             Bersiap… Soal {countdown.index + 1} dari {countdown.total}
                         </p>
                         <div
                             key={countdown.n}
-                            className="animate-in fade-in zoom-in text-[10rem] font-bold leading-none text-primary"
+                            className="animate-in fade-in zoom-in text-[12rem] font-black leading-none text-primary md:text-[16rem]"
+                            style={{ textShadow: "0 12px 40px -8px var(--primary)" }}
                         >
                             {countdown.n}
                         </div>
@@ -372,36 +376,44 @@ export function Presenter({
             )}
 
             {phase === "QUESTION_ACTIVE" && question && (
-                <div className="flex flex-1 flex-col gap-6">
-                    <Card>
-                        <CardContent className="space-y-4 p-6">
-                            <h3 className="text-center text-3xl font-semibold md:text-4xl">
-                                {question.question.text}
-                            </h3>
-                            <TimerBar
-                                serverStartAt={question.serverStartAt}
-                                timeLimitMs={question.timeLimitMs}
-                                offset={offset}
-                            />
-                            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                                {question.question.options.map((o) => {
-                                    const s = shapeOf(o.order);
-                                    return (
-                                        <div
-                                            key={o.id}
-                                            className="flex min-h-24 items-center justify-center gap-2 rounded-lg p-4 text-white"
-                                            style={{ backgroundColor: s.fill }}
-                                        >
-                                            <ShapeIcon name={s.name} className="size-8 shrink-0" />
-                                            <span className="min-w-0 break-words text-center text-lg font-semibold leading-snug md:text-xl">
-                                                {o.text}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </CardContent>
-                    </Card>
+                <div className="flex flex-1 flex-col gap-8">
+                    {/* Soal — hero */}
+                    <div className="rounded-3xl border bg-card p-6 text-center shadow-premium md:p-10">
+                        <h3 className="mx-auto max-w-4xl text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-5xl">
+                            {question.question.text}
+                        </h3>
+                    </div>
+
+                    <TimerBar
+                        serverStartAt={question.serverStartAt}
+                        timeLimitMs={question.timeLimitMs}
+                        offset={offset}
+                    />
+
+                    {/* Opsi — 4 tile besar berwarna */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        {question.question.options.map((o) => {
+                            const s = shapeOf(o.order);
+                            return (
+                                <div
+                                    key={o.id}
+                                    className="relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-2xl p-5 text-white shadow-premium-lg"
+                                    style={{
+                                        backgroundImage: `linear-gradient(135deg, ${s.fill}, ${s.fillStrong})`,
+                                    }}
+                                >
+                                    <ShapeIcon
+                                        name={s.name}
+                                        className="size-10 shrink-0 opacity-95"
+                                    />
+                                    <span className="min-w-0 break-words text-center text-xl font-bold leading-snug md:text-2xl">
+                                        {o.text}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+
                     <div className="flex justify-center">
                         <Button variant="outline" onClick={skip}>
                             <SkipForward className="mr-2 size-4" /> Lewati Soal
@@ -411,10 +423,10 @@ export function Presenter({
             )}
 
             {phase === "QUESTION_ENDED" && question && distEntries && (
-                <div className="flex flex-1 flex-col gap-4">
-                    <Card>
-                        <CardContent className="space-y-4 p-6">
-                            <h3 className="text-center text-xl font-semibold md:text-2xl">
+                <div className="flex flex-1 flex-col gap-6">
+                    <Card className="rounded-2xl shadow-premium">
+                        <CardContent className="space-y-5 p-6 md:p-8">
+                            <h3 className="text-center text-2xl font-bold leading-snug tracking-tight md:text-3xl">
                                 {question.question.text}
                             </h3>
                             <AnswerDistribution entries={distEntries} showCorrect />
@@ -429,27 +441,44 @@ export function Presenter({
             )}
 
             {phase === "LEADERBOARD" && (
-                <div className="flex flex-1 flex-col gap-4">
-                    <Card>
-                        <CardContent className="space-y-3 p-6">
-                            <h3 className="flex items-center gap-2 text-lg font-semibold">
-                                <Trophy className="size-5 text-yellow-500" /> Papan Skor — 5 Besar
+                <div className="flex flex-1 flex-col gap-6">
+                    {leaderboard && leaderboard.top.length > 0 ? (
+                        <div className="space-y-4">
+                            <h3 className="flex items-center justify-center gap-2 text-center text-xl font-bold tracking-tight">
+                                <Trophy className="size-6 text-amber-400" /> Papan Skor
                             </h3>
-                            {leaderboard && leaderboard.top.length > 0 ? (
-                                <LeaderboardRows
-                                    rows={leaderboard.top.map((t, i) => ({
+                            <Podium
+                                entries={leaderboard.top
+                                    .slice(0, 3)
+                                    .map((t, i) => ({
                                         rank: i + 1,
                                         nickname: t.nickname,
                                         score: t.score,
                                     }))}
-                                />
-                            ) : (
-                                <p className="text-sm text-muted-foreground">
+                            />
+                            {leaderboard.top.length > 3 && (
+                                <div className="mx-auto w-full max-w-md space-y-1.5">
+                                    <LeaderboardRows
+                                        rows={leaderboard.top
+                                            .slice(3)
+                                            .map((t, i) => ({
+                                                rank: i + 4,
+                                                nickname: t.nickname,
+                                                score: t.score,
+                                            }))}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Card className="rounded-2xl shadow-premium">
+                            <CardContent className="p-6">
+                                <p className="text-center text-sm text-muted-foreground">
                                     Belum ada skor.
                                 </p>
-                            )}
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    )}
                     <div className="flex justify-center">
                         <Button size="lg" onClick={nextQuestion}>
                             Soal Berikutnya
@@ -459,45 +488,37 @@ export function Presenter({
             )}
 
             {phase === "FINISHED" && (
-                <div className="flex flex-1 flex-col gap-4">
-                    <Card>
-                        <CardContent className="space-y-4 p-6">
-                            <h3 className="flex items-center justify-center gap-2 text-center text-2xl font-semibold">
-                                <Award className="size-6 text-yellow-500" /> Permainan Selesai
-                            </h3>
-                            {podium && podium.length > 0 ? (
-                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                    {podium.map((p) => (
-                                        <div
-                                            key={p.participantId}
-                                            className={`rounded-xl border p-4 text-center ${
-                                                p.rank === 1
-                                                    ? "border-yellow-500 bg-yellow-500/10"
-                                                    : ""
-                                            }`}
-                                        >
-                                            <p className="text-3xl font-bold">
-                                                {medal(p.rank)}
-                                            </p>
-                                            <p className="mt-1 font-medium">{p.nickname}</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {p.score} poin · {p.correctCount} benar
-                                            </p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
+                <div className="flex flex-1 flex-col gap-8">
+                    <h3 className="flex items-center justify-center gap-2 text-center text-2xl font-bold tracking-tight md:text-3xl">
+                        <Award className="size-7 text-amber-400" /> Permainan Selesai
+                    </h3>
+                    {podium && podium.length > 0 ? (
+                        <Podium
+                            entries={podium.map((p) => ({
+                                rank: p.rank,
+                                nickname: p.nickname,
+                                score: p.score,
+                                subtitle: `${p.correctCount} benar`,
+                            }))}
+                        />
+                    ) : (
+                        <Card className="rounded-2xl shadow-premium">
+                            <CardContent className="p-6">
                                 <p className="text-center text-sm text-muted-foreground">
                                     Tidak ada peserta.
                                 </p>
-                            )}
-                        </CardContent>
-                    </Card>
-                    <div className="flex flex-wrap justify-center gap-2">
-                        <Button asChild>
+                            </CardContent>
+                        </Card>
+                    )}
+                    <div className="flex flex-wrap justify-center gap-3">
+                        <Button asChild size="lg">
                             <Link href={`/reports/${sessionId}`}>Lihat Laporan</Link>
                         </Button>
-                        <Button variant="outline" onClick={() => router.push("/dashboard")}>
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            onClick={() => router.push("/dashboard")}
+                        >
                             Kembali ke Dashboard
                         </Button>
                     </div>
@@ -545,17 +566,17 @@ function LobbyView({
 }) {
     return (
         <div className="grid flex-1 gap-6 md:grid-cols-2">
-            <Card>
-                <CardContent className="flex flex-col items-center gap-4 p-6">
+            <Card className="rounded-2xl shadow-premium">
+                <CardContent className="flex flex-col items-center gap-5 p-8">
                     <p className="text-sm font-medium text-muted-foreground">
                         Masuk di perangkat masing-masing
                     </p>
-                    <div className="text-5xl font-bold tracking-[0.3em] tabular-nums">
+                    <div className="rounded-2xl bg-brand-gradient-soft px-8 py-4 text-5xl font-black tracking-[0.3em] tabular-nums text-primary md:text-6xl">
                         {pin}
                     </div>
                     {joinUrl && (
-                        <div className="rounded-xl border bg-white p-3">
-                            <QRCodeSVG value={joinUrl} size={140} level="M" />
+                        <div className="rounded-2xl border bg-white p-3 shadow-premium">
+                            <QRCodeSVG value={joinUrl} size={150} level="M" />
                         </div>
                     )}
                     <p className="text-center text-sm text-muted-foreground">
@@ -569,26 +590,28 @@ function LobbyView({
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardContent className="flex h-full flex-col gap-3 p-6">
+            <Card className="rounded-2xl shadow-premium">
+                <CardContent className="flex h-full flex-col gap-4 p-8">
                     <div className="flex items-center justify-between">
-                        <h3 className="font-medium">Peserta</h3>
+                        <h3 className="font-semibold">Peserta</h3>
                         <Badge variant="secondary" className="gap-1">
                             <Users className="size-3" /> {lobby.count}
                         </Badge>
                     </div>
-                    <div className="grid flex-1 grid-cols-2 gap-2 overflow-auto sm:grid-cols-3">
+                    <div className="grid flex-1 grid-cols-2 content-start gap-2 overflow-auto sm:grid-cols-3">
                         {lobby.participants.length === 0 ? (
-                            <p className="col-span-full py-8 text-center text-sm text-muted-foreground">
+                            <p className="col-span-full py-10 text-center text-sm text-muted-foreground">
                                 Menunggu peserta bergabung…
                             </p>
                         ) : (
                             lobby.participants.map((p) => (
                                 <div
                                     key={p.id}
-                                    className="group flex items-center justify-between gap-1 rounded-lg border px-2 py-1.5 text-sm"
+                                    className="group flex items-center justify-between gap-1 rounded-xl border bg-card px-3 py-2 text-sm transition-colors hover:bg-accent/50"
                                 >
-                                    <span className="truncate">{p.nickname}</span>
+                                    <span className="truncate font-medium">
+                                        {p.nickname}
+                                    </span>
                                     <button
                                         type="button"
                                         onClick={() => onKick(p.id, p.nickname)}
@@ -609,6 +632,7 @@ function LobbyView({
                     size="lg"
                     onClick={onStart}
                     disabled={lobby.count === 0}
+                    className="min-w-48 text-base"
                 >
                     Mulai Permainan
                 </Button>
@@ -627,17 +651,85 @@ function LeaderboardRows({
             {rows.map((r) => (
                 <div
                     key={`${r.rank}-${r.nickname}`}
-                    className="flex items-center gap-3 rounded-lg border px-3 py-2"
+                    className="flex items-center gap-3 rounded-xl border bg-card px-3 py-2 shadow-sm"
                 >
-                    <span className="w-6 text-center font-bold tabular-nums">
+                    <span className="w-6 text-center font-bold tabular-nums text-muted-foreground">
                         {r.rank}
                     </span>
                     <span className="flex-1 truncate font-medium">{r.nickname}</span>
-                    <span className="tabular-nums text-muted-foreground">
-                        {r.score}
-                    </span>
+                    <span className="tabular-nums font-semibold">{r.score}</span>
                 </div>
             ))}
+        </div>
+    );
+}
+
+/* Podium 2-1-3 klasik: pemenang di tengah lebih tinggi. */
+function Podium({
+    entries,
+}: {
+    entries: {
+        rank: number;
+        nickname: string;
+        score: number;
+        subtitle?: string;
+    }[];
+}) {
+    const byRank = new Map(entries.map((e) => [e.rank, e]));
+    const cols = [
+        { e: byRank.get(2), place: 2, h: "h-36 md:h-48" },
+        { e: byRank.get(1), place: 1, h: "h-48 md:h-64" },
+        { e: byRank.get(3), place: 3, h: "h-28 md:h-40" },
+    ] as const;
+
+    return (
+        <div className="mx-auto grid w-full max-w-3xl grid-cols-3 items-end gap-3 md:gap-5">
+            {cols.map(({ e, place, h }) =>
+                e ? (
+                    <PodiumStep key={place} entry={e} height={h} />
+                ) : (
+                    <div key={place} />
+                ),
+            )}
+        </div>
+    );
+}
+
+function PodiumStep({
+    entry,
+    height,
+}: {
+    entry: { rank: number; nickname: string; score: number; subtitle?: string };
+    height: string;
+}) {
+    const gold = entry.rank === 1;
+    return (
+        <div className="flex flex-col items-center">
+            <div className="mb-2 text-3xl md:text-4xl">{medal(entry.rank)}</div>
+            <div
+                className={cn(
+                    "flex w-full flex-col items-center justify-end gap-1 rounded-2xl border p-3 text-center shadow-premium transition-transform",
+                    height,
+                    gold
+                        ? "border-amber-400/60 bg-amber-400/10 ring-1 ring-amber-400/40"
+                        : "bg-card",
+                )}
+            >
+                <p className="line-clamp-2 max-w-full break-words font-bold leading-tight">
+                    {entry.nickname}
+                </p>
+                <p
+                    className={cn(
+                        "text-xl font-extrabold tabular-nums md:text-2xl",
+                        gold ? "text-amber-500 dark:text-amber-400" : "text-primary",
+                    )}
+                >
+                    {entry.score}
+                </p>
+                {entry.subtitle && (
+                    <p className="text-xs text-muted-foreground">{entry.subtitle}</p>
+                )}
+            </div>
         </div>
     );
 }
