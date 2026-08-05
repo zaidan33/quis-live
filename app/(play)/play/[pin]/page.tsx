@@ -344,7 +344,7 @@ export default function PlayPage() {
                             {question.question.text}
                         </h2>
                     )}
-                    <div className="grid flex-1 grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-3">
                         {question.question.options.map((o) => {
                             const s = shapeOf(o.order);
                             const selected = selectedId === o.id;
@@ -355,7 +355,7 @@ export default function PlayPage() {
                                     disabled={locked}
                                     onClick={() => answer(o.id)}
                                     aria-label={`${s.label}${o.text ? ` — ${o.text}` : ""}`}
-                                    className="relative flex flex-col items-center justify-center gap-2 rounded-2xl p-4 text-white shadow-md transition active:scale-[0.98] disabled:cursor-default"
+                                    className="relative flex min-h-36 flex-col items-center justify-center gap-2 rounded-2xl p-3 text-white shadow-md transition active:scale-[0.98] disabled:cursor-default"
                                     style={{
                                         backgroundColor: s.fill,
                                         opacity: locked && !selected ? 0.45 : 1,
@@ -366,9 +366,9 @@ export default function PlayPage() {
                                         outlineOffset: "-4px",
                                     }}
                                 >
-                                    <ShapeIcon name={s.name} className="size-12" />
+                                    <ShapeIcon name={s.name} className="size-12 shrink-0" />
                                     {o.text && (
-                                        <span className="text-center text-sm font-semibold">
+                                        <span className="w-full break-words text-center text-sm font-semibold leading-snug">
                                             {o.text}
                                         </span>
                                     )}
