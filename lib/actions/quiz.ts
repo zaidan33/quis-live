@@ -10,6 +10,7 @@ import {
     BASE_POINTS,
 } from "@/db/schema/quiz";
 import { requireUser } from "@/lib/session";
+import { assessQuizReadiness } from "@/lib/utils/quiz";
 import { saveQuizSchema, type SaveQuizInput } from "@/lib/validators/quiz";
 
 /** Bentuk kanonik kuis + soal + opsi yang dikonsumsi klien (editor & laporan). */
@@ -99,6 +100,10 @@ export interface QuizListItem {
     coverImageUrl: string | null;
     updatedAt: Date;
     questionCount: number;
+    /** Apakah kuis memenuhi syarat minimal untuk dimulai live (QUIZ-12). */
+    ready: boolean;
+    /** Alasan belum siap, untuk tooltip/title. */
+    readinessIssues: string[];
 }
 
 /** Daftar kuis milik host (dashboard), opsional dengan filter pencarian. */
@@ -109,7 +114,12 @@ export async function listMyQuizzes(
     const rows = await db.query.quiz.findMany({
         where: and(eq(quiz.ownerId, user.id), eq(quiz.isDeleted, false)),
         orderBy: [asc(quiz.updatedAt)],
-        with: { questions: { columns: { id: true } } },
+        with: {
+            questions: {
+                columns: { id: true, text: true, type: true },
+                with: { options: { columns: { text: true, isCorrect: true } } },
+            },
+        },
     });
     const q = search?.trim().toLowerCase();
     const filtered = !q
@@ -120,14 +130,19 @@ export async function listMyQuizzes(
                   (r.description ?? "").toLowerCase().includes(q),
           );
     return filtered
-        .map((r) => ({
-            id: r.id,
-            title: r.title,
-            description: r.description,
-            coverImageUrl: r.coverImageUrl,
-            updatedAt: r.updatedAt,
-            questionCount: r.questions.length,
-        }))
+        .map((r) => {
+            const readiness = assessQuizReadiness(r.questions);
+            return {
+                id: r.id,
+                title: r.title,
+                description: r.description,
+                coverImageUrl: r.coverImageUrl,
+                updatedAt: r.updatedAt,
+                questionCount: r.questions.length,
+                ready: readiness.ready,
+                readinessIssues: readiness.issues,
+            };
+        })
         .reverse();
 }
 

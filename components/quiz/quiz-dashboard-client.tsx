@@ -18,6 +18,7 @@ import {
     Loader2,
     MoreHorizontal,
     Pencil,
+    Play,
     Plus,
     Search,
     Trash2,
@@ -57,6 +58,7 @@ import {
     duplicateQuizAction,
     type QuizListItem,
 } from "@/lib/actions/quiz";
+import { startGameSessionAction } from "@/lib/actions/game";
 
 type RowAction =
     | { kind: "duplicate"; quiz: QuizListItem }
@@ -73,6 +75,7 @@ export function QuizDashboardClient({
     const [search, setSearch] = React.useState("");
     const [creating, setCreating] = React.useState(false);
     const [pendingId, setPendingId] = React.useState<string | null>(null);
+    const [startingId, setStartingId] = React.useState<string | null>(null);
     const [dialog, setDialog] = React.useState<RowAction>(null);
 
     const columns = React.useMemo<ColumnDef<QuizListItem>[]>(
@@ -114,6 +117,34 @@ export function QuizDashboardClient({
                         })}
                     </span>
                 ),
+            },
+            {
+                id: "start",
+                header: () => <span className="sr-only">Mulai Live</span>,
+                cell: ({ row }) => {
+                    const q = row.original;
+                    return (
+                        <div className="text-right">
+                            <Button
+                                size="sm"
+                                disabled={!q.ready || startingId === q.id}
+                                title={
+                                    q.ready
+                                        ? `Mulai live: ${q.title}`
+                                        : q.readinessIssues.join("\n")
+                                }
+                                onClick={() => handleStart(q)}
+                            >
+                                {startingId === q.id ? (
+                                    <Loader2 className="mr-2 size-4 animate-spin" />
+                                ) : (
+                                    <Play className="mr-2 size-4" />
+                                )}
+                                Mulai Live
+                            </Button>
+                        </div>
+                    );
+                },
             },
             {
                 id: "actions",
@@ -188,6 +219,24 @@ export function QuizDashboardClient({
         } catch {
             toast.error("Gagal membuat kuis");
             setCreating(false);
+        }
+    }
+
+    /** Mulai sesi live langsung dari dashboard (tanpa buka editor). */
+    async function handleStart(quiz: QuizListItem) {
+        if (!quiz.ready) return;
+        setStartingId(quiz.id);
+        try {
+            const res = await startGameSessionAction(quiz.id);
+            if ("sessionId" in res) {
+                router.push(`/host/${res.sessionId}`);
+            } else {
+                toast.error(res.error);
+            }
+        } catch {
+            toast.error("Gagal memulai sesi");
+        } finally {
+            setStartingId(null);
         }
     }
 

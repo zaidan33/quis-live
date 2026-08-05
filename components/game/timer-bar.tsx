@@ -50,7 +50,7 @@ export function TimerBar({
             </div>
             <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                    className={`h-full rounded-full transition-[width] duration-100 ease-linear ${
+                    className={`h-full ${
                         danger ? "bg-destructive" : "bg-primary"
                     }`}
                     style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
