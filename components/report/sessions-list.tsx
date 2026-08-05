@@ -74,7 +74,7 @@ export function SessionsListClient({
 
     return (
         <div className="@container/main mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-4 md:gap-6 md:p-8">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
                 <h2 className="text-2xl font-semibold tracking-tight">
                     Riwayat Sesi
                 </h2>
@@ -83,7 +83,7 @@ export function SessionsListClient({
                 </p>
             </div>
 
-            <div className="rounded-md border">
+            <div className="overflow-hidden rounded-xl border shadow-premium">
                 <Table>
                     <TableHeader>
                         <TableRow>

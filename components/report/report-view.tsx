@@ -133,7 +133,7 @@ export function ReportView({ report }: { report: SessionReport }) {
             </div>
 
             {/* Summary cards */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <StatCard
                     icon={<Users className="size-4" />}
                     label="Peserta"
@@ -158,7 +158,7 @@ export function ReportView({ report }: { report: SessionReport }) {
 
             {/* Hardest question */}
             {hardest && (
-                <Card className="border-orange-500/40 bg-orange-500/5">
+                <Card className="rounded-2xl border-orange-500/40 bg-orange-500/5 shadow-premium">
                     <CardContent className="flex items-start gap-3 p-4">
                         <Flame className="mt-0.5 size-5 shrink-0 text-orange-500" />
                         <div className="text-sm">
@@ -175,17 +175,17 @@ export function ReportView({ report }: { report: SessionReport }) {
             )}
 
             {/* Participants table */}
-            <Card>
+            <Card className="rounded-2xl shadow-premium">
                 <CardContent className="p-4 md:p-6">
-                    <h3 className="mb-3 font-medium">Hasil Peserta</h3>
+                    <h3 className="mb-3 font-semibold">Hasil Peserta</h3>
                     <ParticipantsTable participants={report.participants} totalQuestions={totalQuestions} />
                 </CardContent>
             </Card>
 
             {/* Per-question analysis */}
-            <Card>
+            <Card className="rounded-2xl shadow-premium">
                 <CardContent className="space-y-4 p-4 md:p-6">
-                    <h3 className="font-medium">Analisis per Soal</h3>
+                    <h3 className="font-semibold">Analisis per Soal</h3>
                     {accuracyData.length > 0 && (
                         <ChartContainer
                             config={chartConfig}
@@ -279,12 +279,13 @@ function StatCard({
     value: string;
 }) {
     return (
-        <Card>
-            <CardContent className="flex flex-col gap-1 p-4">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    {icon} {label}
+        <Card className="overflow-hidden rounded-2xl shadow-premium">
+            <CardContent className="flex flex-col gap-2.5 p-5">
+                <div className="flex size-9 items-center justify-center rounded-xl bg-brand-gradient-soft text-primary [&_svg]:size-5">
+                    {icon}
                 </div>
                 <p className="text-2xl font-bold tabular-nums">{value}</p>
+                <p className="text-xs font-medium text-muted-foreground">{label}</p>
             </CardContent>
         </Card>
     );
@@ -362,7 +363,7 @@ function ParticipantsTable({
     }
 
     return (
-        <div className="rounded-md border">
+        <div className="overflow-hidden rounded-xl border shadow-premium">
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map((hg) => (
