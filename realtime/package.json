@@ -6,7 +6,7 @@
   "description": "Layanan Socket.IO otoritatif untuk Quis (state game di memori).",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --external:socket.io --external:socket.io-client --external:pg-native --outfile=dist/index.mjs",
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --external:socket.io --external:socket.io-client --external:pg-native --external:dotenv --external:jose --external:drizzle-orm --external:pg --outfile=dist/index.mjs",
     "start": "node dist/index.mjs",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
