@@ -439,7 +439,7 @@ export default function PlayPage() {
         return (
             <div
                 className={cn(
-                    "flex min-h-screen items-center justify-center p-4",
+                    "dark flex min-h-screen items-center justify-center p-4",
                     correct
                         ? "bg-gradient-to-b from-emerald-500 to-emerald-700"
                         : "bg-gradient-to-b from-rose-500 to-rose-700",
