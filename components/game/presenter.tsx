@@ -73,6 +73,7 @@ type Phase =
 type Conn =
     | { status: "connecting" }
     | { status: "error"; message: string }
+    | { status: "reconnecting" }
     | { status: "connected" };
 
 interface DistEntry {
@@ -165,12 +166,24 @@ export function Presenter({
                 // Offset jam hanya untuk akurasi tampilan (PRD 5.5).
                 syncClock(socket!).then((o) => !cancelled && setOffset(o));
             });
+            socket.on("disconnect", (reason) => {
+                // Reconnect otomatis aktif (lib/socket.ts). Jangan tampilkan
+                // layar error permanen — tandai "menghubungkan kembali".
+                if (!cancelled && reason !== "io client disconnect")
+                    setConn((c): Conn =>
+                        c.status === "connected"
+                            ? { status: "reconnecting" }
+                            : c,
+                    );
+            });
             socket.on("connect_error", (err: Error) => {
+                // Auto-reconnect terus mencoba; UI tetap di layar game.
                 if (!cancelled)
-                    setConn({
-                        status: "error",
-                        message: `Koneksi gagal: ${err.message}`,
-                    });
+                    setConn((c): Conn =>
+                        c.status === "connected"
+                            ? { status: "reconnecting" }
+                            : c,
+                    );
             });
 
             socket.on(GAME_STATE, (s: unknown) => {
@@ -307,10 +320,22 @@ export function Presenter({
         );
     }
 
+    if (conn.status === "reconnecting") {
+        return (
+            <Centered column>
+                <Loader2 className="size-6 animate-spin text-primary" />
+                <p className="font-medium">Menghubungkan kembali…</p>
+                <p className="text-sm text-muted-foreground">
+                    Koneksi terputus — mencoba menyambung ulang otomatis.
+                </p>
+            </Centered>
+        );
+    }
+
     return (
-        <div className="@container/main mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 p-4 md:p-8">
+        <div className="@container/main mx-auto flex h-dvh w-full max-w-6xl flex-col gap-4 overflow-hidden p-4 md:p-6">
             {/* Header */}
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex shrink-0 flex-wrap items-start justify-between gap-4">
                 <div className="space-y-1">
                     <p className="text-sm font-medium text-muted-foreground">
                         {quizTitle}
@@ -376,10 +401,10 @@ export function Presenter({
             )}
 
             {phase === "QUESTION_ACTIVE" && question && (
-                <div className="flex flex-1 flex-col gap-8">
-                    {/* Soal — hero */}
-                    <div className="rounded-3xl border bg-card p-6 text-center shadow-premium md:p-10">
-                        <h3 className="mx-auto max-w-4xl text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-5xl">
+                <div className="flex min-h-0 flex-1 flex-col gap-4">
+                    {/* Soal — hero, tinggi menyesuaikan tapi tidak mendominasi */}
+                    <div className="flex min-h-0 flex-1 items-center justify-center rounded-3xl border bg-card p-4 text-center shadow-premium md:p-6">
+                        <h3 className="line-clamp-4 max-w-5xl text-3xl font-bold leading-tight tracking-tight md:text-4xl lg:text-5xl">
                             {question.question.text}
                         </h3>
                     </div>
@@ -390,23 +415,23 @@ export function Presenter({
                         offset={offset}
                     />
 
-                    {/* Opsi — 4 tile besar berwarna */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Opsi — 4 tile besar berwarna, mengisi sisa tinggi */}
+                    <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 lg:grid-cols-4">
                         {question.question.options.map((o) => {
                             const s = shapeOf(o.order);
                             return (
                                 <div
                                     key={o.id}
-                                    className="relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-2xl p-5 text-white shadow-premium-lg"
+                                    className="relative flex min-h-0 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl p-3 text-white shadow-premium-lg md:gap-3 md:p-5"
                                     style={{
                                         backgroundImage: `linear-gradient(135deg, ${s.fill}, ${s.fillStrong})`,
                                     }}
                                 >
                                     <ShapeIcon
                                         name={s.name}
-                                        className="size-10 shrink-0 opacity-95"
+                                        className="size-8 shrink-0 opacity-95 md:size-10"
                                     />
-                                    <span className="min-w-0 break-words text-center text-xl font-bold leading-snug md:text-2xl">
+                                    <span className="min-w-0 break-words text-center text-lg font-bold leading-snug md:text-xl lg:text-2xl">
                                         {o.text}
                                     </span>
                                 </div>
@@ -414,7 +439,7 @@ export function Presenter({
                         })}
                     </div>
 
-                    <div className="flex justify-center">
+                    <div className="flex shrink-0 justify-center">
                         <Button variant="outline" onClick={skip}>
                             <SkipForward className="mr-2 size-4" /> Lewati Soal
                         </Button>
@@ -423,7 +448,7 @@ export function Presenter({
             )}
 
             {phase === "QUESTION_ENDED" && question && distEntries && (
-                <div className="flex flex-1 flex-col gap-6">
+                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto">
                     <Card className="rounded-2xl shadow-premium">
                         <CardContent className="space-y-5 p-6 md:p-8">
                             <h3 className="text-center text-2xl font-bold leading-snug tracking-tight md:text-3xl">
@@ -432,7 +457,7 @@ export function Presenter({
                             <AnswerDistribution entries={distEntries} showCorrect />
                         </CardContent>
                     </Card>
-                    <div className="flex justify-center">
+                    <div className="flex shrink-0 justify-center">
                         <Button size="lg" onClick={showLeaderboard}>
                             Lihat Papan Skor
                         </Button>
@@ -441,7 +466,7 @@ export function Presenter({
             )}
 
             {phase === "LEADERBOARD" && (
-                <div className="flex flex-1 flex-col gap-6">
+                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto">
                     {leaderboard && leaderboard.top.length > 0 ? (
                         <div className="space-y-4">
                             <h3 className="flex items-center justify-center gap-2 text-center text-xl font-bold tracking-tight">
@@ -488,7 +513,7 @@ export function Presenter({
             )}
 
             {phase === "FINISHED" && (
-                <div className="flex flex-1 flex-col gap-8">
+                <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-auto">
                     <h3 className="flex items-center justify-center gap-2 text-center text-2xl font-bold tracking-tight md:text-3xl">
                         <Award className="size-7 text-amber-400" /> Permainan Selesai
                     </h3>
@@ -565,7 +590,7 @@ function LobbyView({
     onStart: () => void;
 }) {
     return (
-        <div className="grid flex-1 gap-6 md:grid-cols-2">
+        <div className="grid min-h-0 flex-1 gap-4 overflow-auto md:grid-cols-2">
             <Card className="rounded-2xl shadow-premium">
                 <CardContent className="flex flex-col items-center gap-5 p-8">
                     <p className="text-sm font-medium text-muted-foreground">

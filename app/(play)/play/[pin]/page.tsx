@@ -46,6 +46,7 @@ type Phase =
 
 type Conn =
     | { status: "connecting" }
+    | { status: "reconnecting"; nickname: string }
     | { status: "error"; message: string }
     | { status: "ready"; nickname: string };
 
@@ -135,15 +136,33 @@ export default function PlayPage() {
             socketRef.current = socket;
 
             socket.on("connect", () => {
+                setConn((c): Conn => {
+                    if (c.status === "error" || c.status === "reconnecting") {
+                        return { status: "ready", nickname: storedName ?? "" };
+                    }
+                    return c;
+                });
                 socket!.emit(PLAYER_JOIN);
                 syncClock(socket!).then((o) => !cancelled && setOffset(o));
             });
+            socket.on("disconnect", (reason) => {
+                // Reconnect otomatis aktif; jangan tampilkan layar error permanen.
+                // Hanya tandai status agar UI bisa menampilkan "menghubungkan kembali".
+                if (!cancelled && reason !== "io client disconnect")
+                    setConn((c): Conn =>
+                        c.status === "ready"
+                            ? { status: "reconnecting", nickname: storedName ?? "" }
+                            : c,
+                    );
+            });
             socket.on("connect_error", (err: Error) => {
+                // Auto-reconnect akan terus mencoba; jangan render layar error.
                 if (!cancelled)
-                    setConn({
-                        status: "error",
-                        message: `Koneksi gagal: ${err.message}`,
-                    });
+                    setConn((c): Conn =>
+                        c.status === "ready"
+                            ? { status: "reconnecting", nickname: storedName ?? "" }
+                            : c,
+                    );
             });
 
             socket.on(GAME_STATE, (s: { state?: string; lobby?: unknown }) => {
@@ -257,6 +276,26 @@ export default function PlayPage() {
         );
     }
 
+    if (conn.status === "reconnecting") {
+        return (
+            <Center>
+                <Card className="w-full max-w-sm">
+                    <CardContent className="space-y-4 p-8 text-center">
+                        <Loader2 className="mx-auto size-6 animate-spin text-primary" />
+                        <p className="text-lg font-semibold">
+                            Menghubungkan kembali…
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                            Koneksi terputus. Mencoba menyambung ulang secara
+                            otomatis — skor kamu aman.
+                        </p>
+                        <div className="text-4xl">📶</div>
+                    </CardContent>
+                </Card>
+            </Center>
+        );
+    }
+
     if (conn.status === "error") {
         return (
             <Center>
@@ -332,15 +371,15 @@ export default function PlayPage() {
 
     if (phase === "question" && question) {
         return (
-            <div className="dark flex min-h-screen flex-col bg-stage p-3">
-                <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
-                    <div className="mb-3 flex items-center justify-between text-sm text-white/70">
+            <div className="dark flex h-dvh flex-col bg-stage p-3">
+                <div className="mx-auto flex w-full max-w-md min-h-0 flex-1 flex-col">
+                    <div className="mb-2 flex shrink-0 items-center justify-between text-sm text-white/70">
                         <span className="tabular-nums">
                             Soal {question.index + 1}/{question.total}
                         </span>
                         <span className="font-medium text-white">{nickname}</span>
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-3 shrink-0">
                         <TimerBar
                             serverStartAt={question.serverStartAt}
                             timeLimitMs={question.timeLimitMs}
@@ -348,11 +387,11 @@ export default function PlayPage() {
                         />
                     </div>
                     {question.question.text && (
-                        <h2 className="mb-5 text-center text-2xl font-bold leading-snug text-white md:text-3xl">
+                        <h2 className="mb-4 min-h-0 flex-1 content-center text-center text-2xl font-bold leading-snug text-white md:text-3xl">
                             {question.question.text}
                         </h2>
                     )}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-3">
                         {question.question.options.map((o) => {
                             const s = shapeOf(o.order);
                             const selected = selectedId === o.id;
@@ -364,7 +403,7 @@ export default function PlayPage() {
                                     onClick={() => answer(o.id)}
                                     aria-label={`${s.label}${o.text ? ` — ${o.text}` : ""}`}
                                     className={cn(
-                                        "relative flex min-h-40 flex-col items-center justify-center gap-3 rounded-3xl p-4 text-white shadow-premium-lg transition-all duration-150 active:scale-95 disabled:cursor-default",
+                                        "relative flex min-h-0 flex-col items-center justify-center gap-2 overflow-hidden rounded-3xl p-3 text-white shadow-premium-lg transition-all duration-150 active:scale-95 disabled:cursor-default",
                                         selected && locked && "scale-[1.03] ring-4 ring-white",
                                     )}
                                     style={{
@@ -374,10 +413,10 @@ export default function PlayPage() {
                                 >
                                     <ShapeIcon
                                         name={s.name}
-                                        className="size-14 shrink-0 drop-shadow"
+                                        className="size-10 shrink-0 drop-shadow md:size-12"
                                     />
                                     {o.text && (
-                                        <span className="w-full break-words text-center text-xl font-bold leading-snug">
+                                        <span className="w-full break-words text-center text-base font-bold leading-snug md:text-lg">
                                             {o.text}
                                         </span>
                                     )}
@@ -386,7 +425,7 @@ export default function PlayPage() {
                         })}
                     </div>
                     {locked && (
-                        <p className="mt-4 text-center text-sm text-white/70">
+                        <p className="mt-2 shrink-0 text-center text-sm text-white/70">
                             Jawaban terkunci. Menunggu soal selesai…
                         </p>
                     )}
